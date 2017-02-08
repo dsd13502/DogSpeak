@@ -26,11 +26,15 @@ const List = React.createClass({
         return{
             dataSource:ds.cloneWithRows([
                 {
-                    "_id":"340000199408319955","thumb":"https://ss0.baidu.com/73x1bjeh1BF3odCf/it/u=1390991875,409124601&fm=85&s=98E8EA055C72E2DE54355D9603008082","video":"http://www.imooc.com/video/1430"
+                    "_id":"230000197809160223","thumb":"http://dummyimage.com/1200x600/b570ea)","video":"http://www.imooc.com/video/1430"
                 }
                 ,
                 {
-                    "_id":"350000199905316378","thumb":"https://ss0.baidu.com/73t1bjeh1BF3odCf/it/u=783012638,594566969&fm=85&s=7AC34A9A520A60ED5A937BDD0300F0BC","video":"http://www.imooc.com/video/1430"
+                    "_id":"710000200511092300","thumb":"http://dummyimage.com/1200x600/a12aed)","video":"http://www.imooc.com/video/1430"
+                }
+                ,
+                {
+                    "_id":"230000197405062619","thumb":"http://dummyimage.com/1200x600/12ee5d)","video":"http://www.imooc.com/video/1430"
                 }]),
         }
     },
@@ -79,6 +83,43 @@ const List = React.createClass({
                 </View>
             </TouchableHighlight>
         )
+    },
+
+    componentDidMount:function () {
+        console.log('componentDidMount');
+        this._fetchData();
+
+    },
+
+
+    _fetchData:function () {
+        console.log('fetch');
+        fetch('http://rap.taobao.org/mockjs/4230/api/creations?accessToken=abcdef')
+
+            .then((response) => response.text())
+            .then((responseText) => {
+                console.log(responseText);
+                console.log(1234);
+            })
+            .catch((error) => {
+                console.warn(error);
+                console.log(567);
+            });
+
+
+    },
+
+
+    getMoviesFromApiAsync() {
+        return fetch('https://facebook.github.io/react-native/movies.json')
+            .then((response) => response.json())
+            .then((responseJson) => {
+            console.log(responseJson);
+                return responseJson.movies;
+            })
+            .catch((error) => {
+                console.error(error);
+            });
     },
 
     render:function () {
