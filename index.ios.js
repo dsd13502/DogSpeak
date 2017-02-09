@@ -6,81 +6,97 @@ import Icon from 'react-native-vector-icons/Ionicons';
 
 const List = require('./app/creation/index')
 const Edit = require('./app/edit/index')
-const Account =require('./app/account/index')
+const Account = require('./app/account/index')
 
 let {
     AppRegistry,
     StyleSheet,
     TabBarIOS,
-    Text,
-    View
+    Navigator
 } = ReactNative
 
 
-
 const TabBarExample = React.createClass({
-  statics: {
-    description: 'Tab-based navigation.'
-  },
+    statics: {
+        description: 'Tab-based navigation.'
+    },
 
-  displayName: 'TabBarExample',
+    displayName: 'TabBarExample',
 
-  getInitialState: function() {
-    return {
-      selectedTab: 'list',
-      notifCount: 0,
-      presses: 0
-    }
-  },
+    getInitialState: function () {
+        return {
+            selectedTab: 'list',
+            notifCount: 0,
+            presses: 0
+        }
+    },
 
-  render: function() {
-    return (
-            <TabBarIOS
-                tintColor="#ee753c">
-
-              <Icon.TabBarItem
-                  iconName= 'ios-videocam-outline'
-                  selectedIconName='ios-videocam'
-                  selected={this.state.selectedTab === 'list'}
-                  onPress={() => {
+    render: function () {
+        return (
+            <TabBarIOS tintColor="#ee753c">
+                <Icon.TabBarItem
+                    iconName='ios-videocam-outline'
+                    selectedIconName='ios-videocam'
+                    selected={this.state.selectedTab === 'list'}
+                    onPress={() => {
                     this.setState({
                       selectedTab: 'list'
                     })
-                  }}>
-                <List/>
-              </Icon.TabBarItem>
+                }}
+                >
 
-              <Icon.TabBarItem
-                  iconName=  'ios-recording-outline'
-                  selectedIconName='ios-recording'
-                  badge={5}   //{this.state.notifCount > 0 ? this.state.notifCount : undefined}
-                  selected={this.state.selectedTab === 'edit'}
-                  onPress={() => {
+                    <Navigator
+                        initialRoute={//不知道是什么东西，
+                        {
+                           name : 'List',
+                           component : List //是将原来的List放到了Navigator中，进行了一层包装
+                        }}
+
+                        configureScene={(route) =>
+                        {
+                            return Navigator.SceneConfigs.FloatFromRight
+                        }}
+
+                        renderScene={(route,navigator) =>
+                        {
+                            let Component = route.component // Component 相对于List
+                            return<Component{...route.params} navigator = {navigator}/>
+                        }}
+                    />
+
+                </Icon.TabBarItem>
+
+                <Icon.TabBarItem
+                    iconName='ios-recording-outline'
+                    selectedIconName='ios-recording'
+                    badge={5}   //{this.state.notifCount > 0 ? this.state.notifCount : undefined}
+                    selected={this.state.selectedTab === 'edit'}
+                    onPress={() => {
                     this.setState({
                       selectedTab: 'edit',
                       notifCount: this.state.notifCount + 1
                     })
                   }}>
-                  <Edit/>
-              </Icon.TabBarItem>
-                
-              <Icon.TabBarItem
-                  iconName=  'ios-more-outline'
-                  selectedIconName='ios-more'
-                  renderAsOriginal
-                  selected={this.state.selectedTab === 'account'}
-                  onPress={() => {
+                    <Edit/>
+                </Icon.TabBarItem>
+
+                <Icon.TabBarItem
+                    iconName='ios-more-outline'
+                    selectedIconName='ios-more'
+                    renderAsOriginal
+                    selected={this.state.selectedTab === 'account'}
+                    onPress={() => {
                     this.setState({
                       selectedTab: 'account',
                       presses: this.state.presses + 1
                     })
                   }}>
-                  <Account/>
-              </Icon.TabBarItem>
-                
+                    <Account/>
+                </Icon.TabBarItem>
+
             </TabBarIOS>
-    )
-  }
+        )
+    }
 
 })
 
@@ -96,8 +112,8 @@ const styles = StyleSheet.create({
         alignItems: 'center'
     },
     tabText: {
-         color: 'white',
-         margin: 50
+        color: 'white',
+        margin: 50
     }
 })
 

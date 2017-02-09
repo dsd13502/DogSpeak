@@ -1611,9 +1611,7 @@ AppRegistry=
 
 
 
-
-ReactNative.AppRegistry,StyleSheet=ReactNative.StyleSheet,TabBarIOS=ReactNative.TabBarIOS,Text=ReactNative.Text,View=ReactNative.View;
-
+ReactNative.AppRegistry,StyleSheet=ReactNative.StyleSheet,TabBarIOS=ReactNative.TabBarIOS,Navigator=ReactNative.Navigator;
 
 
 var TabBarExample=React.createClass({
@@ -1633,9 +1631,7 @@ presses:0};
 
 render:function render(){var _this=this;
 return(
-React.createElement(TabBarIOS,{
-tintColor:'#ee753c'},
-
+React.createElement(TabBarIOS,{tintColor:'#ee753c'},
 React.createElement(_Ionicons2.default.TabBarItem,{
 iconName:'ios-videocam-outline',
 selectedIconName:'ios-videocam',
@@ -1645,7 +1641,27 @@ _this.setState({
 selectedTab:'list'});
 
 }},
-React.createElement(List,null)),
+
+
+React.createElement(Navigator,{
+initialRoute:
+{
+name:'List',
+component:List},
+
+
+configureScene:function configureScene(route)
+{
+return Navigator.SceneConfigs.FloatFromRight;
+},
+
+renderScene:function renderScene(route,navigator)
+{
+var Component=route.component;
+return React.createElement(Component,babelHelpers.extends({},route.params,{navigator:navigator}));
+}})),
+
+
 
 
 React.createElement(_Ionicons2.default.TabBarItem,{
@@ -74420,6 +74436,8 @@ var _react=require(14     );var _react2=babelHelpers.interopRequireDefault(_reac
 var _reactNative=require(45            );var _reactNative2=babelHelpers.interopRequireDefault(_reactNative); // 45 = react-native
 var _request=require(569                );var _request2=babelHelpers.interopRequireDefault(_request); // 569 = ../common/request
 var _config=require(574               );var _config2=babelHelpers.interopRequireDefault(_config); // 574 = ../common/config
+var _detail=require(577       );var _detail2=babelHelpers.interopRequireDefault(_detail); // 577 = ./detail
+
 var _Ionicons=require(12                                  );var _Ionicons2=babelHelpers.interopRequireDefault(_Ionicons);var // 12 = react-native-vector-icons/Ionicons
 
 StyleSheet=_reactNative2.default.StyleSheet,
@@ -74430,7 +74448,8 @@ Dimensions=_reactNative2.default.Dimensions,
 TouchableHighlight=_reactNative2.default.TouchableHighlight,
 Image=_reactNative2.default.Image,
 ActivityIndicator=_reactNative2.default.ActivityIndicator,
-AlertIOS=_reactNative2.default.AlertIOS;
+AlertIOS=_reactNative2.default.AlertIOS,
+Navigator=_reactNative2.default.Navigator;
 
 
 var width=Dimensions.get('window').width;
@@ -74487,8 +74506,9 @@ AlertIOS.alert('点赞失败，稍后重试');
 render:function render()
 {
 var row=this.state.row;
+
 return(
-_react2.default.createElement(TouchableHighlight,null,
+_react2.default.createElement(TouchableHighlight,{onPress:this.props.onSelect},
 _react2.default.createElement(View,{style:styles.item},
 
 _react2.default.createElement(Text,{style:styles.title},row.title),
@@ -74545,9 +74565,14 @@ dataSource:ds.cloneWithRows([])};
 
 },
 
-renderRow:function renderRow(row){
-return(
-this._renderRow(row));
+renderRow:function renderRow(row){var _this=this;
+return _react2.default.createElement(Item,{
+key:row.id,
+onSelect:
+function onSelect(){_this._loadPager(row);
+},
+
+row:row});
 
 },
 
@@ -74556,9 +74581,15 @@ this._fetchData(1);
 
 },
 
+_loadPager:function _loadPager(row)
+{
+this.props.navigator.push({
+name:'detail',
+component:_detail2.default,
+params:{
+row:row}});
 
-_renderRow:function _renderRow(row){
-return _react2.default.createElement(Item,{row:row});
+
 },
 
 
@@ -100653,6 +100684,59 @@ base:'http://rap.taobao.org/mockjs/4230/',
 creations:'api/creations',
 up:'api/up'}};
 }, 574, null, "RN/app/common/config.js");
+__d(/* RN/app/creation/detail.js */function(global, require, module, exports) {
+
+
+
+'use strict';
+
+var React=require(14     ); // 14 = react
+var ReactNative=require(45            ); // 45 = react-native
+var Icon=require(12                                  );var // 12 = react-native-vector-icons/Ionicons
+
+StyleSheet=
+
+
+ReactNative.StyleSheet,Text=ReactNative.Text,View=ReactNative.View;
+
+var Detail=React.createClass({displayName:'Detail',
+render:function render(){
+var row=this.props.row;
+return(
+React.createElement(View,{style:styles.container},
+React.createElement(Text,{onPress:this._backToList},'\u8BE6\u60C5\u9875\u9762 ',row._id)));
+
+
+},
+
+_backToList:function _backToList()
+{
+this.props.navigator.pop();
+}});
+
+
+
+var styles=StyleSheet.create({
+container:{
+flex:1,
+justifyContent:'center',
+alignItems:'center',
+backgroundColor:'#F5FCFF'},
+
+welcome:{
+fontSize:20,
+textAlign:'center',
+margin:10},
+
+instructions:{
+textAlign:'center',
+color:'#333333',
+marginBottom:5}});
+
+
+
+module.exports=Detail;
+}, 577, null, "RN/app/creation/detail.js");
 __d(/* RN/app/edit/index.js */function(global, require, module, exports) {
 
 

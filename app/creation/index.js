@@ -8,6 +8,8 @@ import React  from 'react';
 import ReactNative from 'react-native';
 import Request from '../common/request';
 import config from '../common/config'
+import Detail from './detail'
+
 import Icon from 'react-native-vector-icons/Ionicons';
 const {
     StyleSheet,
@@ -19,6 +21,7 @@ const {
     Image,
     ActivityIndicator,
     AlertIOS,
+    Navigator,
 } = ReactNative
 
 const width = Dimensions.get('window').width
@@ -75,8 +78,9 @@ const Item = React.createClass({
     render()
     {
         const row = this.state.row;
+
         return (
-            <TouchableHighlight>
+            <TouchableHighlight onPress ={this.props.onSelect}>
                 <View style={styles.item}>
 
                     <Text style={styles.title}>{row.title}</Text>
@@ -133,10 +137,15 @@ const List = React.createClass({
 
     },
 
-    renderRow:function (row) {
-        return(
-           this._renderRow(row)
-        )
+    renderRow (row) {
+        return <Item
+            key = {row.id}
+            onSelect = {
+                () =>{this._loadPager(row)
+                }
+            }
+            row={row}
+        />
     },
 
     componentDidMount() {
@@ -144,9 +153,15 @@ const List = React.createClass({
 
     },
 
-
-    _renderRow(row){
-        return <Item row={row}/>
+    _loadPager(row)
+    {
+      this.props.navigator.push({ //像栈一样，将Detail页面压入进来
+          name : 'detail',
+          component:Detail,
+          params :{
+              row : row
+          }
+      })
     },
 
     //"_"下划线标示私有方面，不对外暴露
