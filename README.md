@@ -14,15 +14,15 @@ import Icon from 'react-native-vector-icons/Ionicons';
 
 
 ## 需要的库
-
+```
 npm i query-string --save
 npm i lodash --save
 nmp i mockjs --save
-
+```
 图片库
-npm install react-native-vector-icons --save
+`npm install react-native-vector-icons --save`
 
-sudo npm i rnpm -g
+`sudo npm i rnpm -g`
 
 使用rnpm建立链接
-rnpm link
+`rnpm link`

@@ -18,6 +18,7 @@ const {
     TouchableHighlight,
     Image,
     ActivityIndicator,
+    AlertIOS,
 } = ReactNative
 
 const width = Dimensions.get('window').width
@@ -28,20 +29,53 @@ const cacheRequest = {
     total : 0,
 }
 
-const List = React.createClass({
+const Item = React.createClass({
 
-    getInitialState() {
-        let ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
-
-        return{
-            isLoadingTail : false ,
-            dataSource : ds.cloneWithRows([])
+    getInitialState()
+    {
+        let row  = this.props.row;
+        return{//return可以返回多个
+            row : row,
+            up : row.voted
         }
-
     },
 
-    renderRow:function (row) {
-        return(
+    _up()
+    {
+        let that = this;
+        let up = !this.state.up;
+        let row = this.state.row;
+        let url = config.api.base + config.api.up;
+
+        let body = {
+            id : row.id,
+            up : up ? 'yes' : 'no',
+            accessToken :'abcdef'
+        }
+
+        Request.post(url,body)
+            .then((data) => {
+                if (data && data.success){
+                    that.setState({
+                        up:up,
+                    })
+                }else
+                {
+                    AlertIOS.alert('点赞失败，稍后重试')
+                }
+            })
+            .catch((error) =>{
+                console.log(error)
+                AlertIOS.alert('点赞失败，稍后重试')
+        })
+
+    }
+    ,
+
+    render()
+    {
+        const row = this.state.row;
+        return (
             <TouchableHighlight>
                 <View style={styles.item}>
 
@@ -61,11 +95,12 @@ const List = React.createClass({
                     <View style={styles.itemFooter}>
                         <View style={styles.handleBox}>
                             <Icon
-                                name='ios-heart-outline'
+                                name={this.state.up ? 'ios-heart' :'ios-heart-outline'}
                                 size={28}
-                                style={styles.up}
+                                style={this.state.up ?  styles.up : styles.down}
+                                onPress={this._up}
                             />
-                            <Text style={styles.handleText}>喜欢</Text>
+                            <Text style={styles.handleText} onPress={this._up}>喜欢</Text>
                         </View>
 
                         <View style={styles.handleBox}>
@@ -81,6 +116,27 @@ const List = React.createClass({
                 </View>
             </TouchableHighlight>
         )
+    }
+
+
+})
+
+const List = React.createClass({
+
+    getInitialState() {
+        let ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+
+        return{
+            isLoadingTail : false ,
+            dataSource : ds.cloneWithRows([])
+        }
+
+    },
+
+    renderRow:function (row) {
+        return(
+           this._renderRow(row)
+        )
     },
 
     componentDidMount() {
@@ -88,6 +144,10 @@ const List = React.createClass({
 
     },
 
+
+    _renderRow(row){
+        return <Item row={row}/>
+    },
 
     //"_"下划线标示私有方面，不对外暴露
     _fetchData(page) {
@@ -255,9 +315,13 @@ const styles = StyleSheet.create({
 
     up:{
         fontSize:22,
-        color:'#333'
+        color:'#ed7b66'
     },
 
+    down:{
+        fontSize:22,
+        color:'#333'
+    },
     commentIcon:{
         fontSize:22,
         color:'#333'

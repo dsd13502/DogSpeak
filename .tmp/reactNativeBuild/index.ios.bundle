@@ -74429,7 +74429,8 @@ ListView=_reactNative2.default.ListView,
 Dimensions=_reactNative2.default.Dimensions,
 TouchableHighlight=_reactNative2.default.TouchableHighlight,
 Image=_reactNative2.default.Image,
-ActivityIndicator=_reactNative2.default.ActivityIndicator;
+ActivityIndicator=_reactNative2.default.ActivityIndicator,
+AlertIOS=_reactNative2.default.AlertIOS;
 
 
 var width=Dimensions.get('window').width;
@@ -74440,19 +74441,52 @@ items:[],
 total:0};
 
 
-var List=_react2.default.createClass({displayName:'List',
+var Item=_react2.default.createClass({displayName:'Item',
 
-getInitialState:function getInitialState(){
-var ds=new ListView.DataSource({rowHasChanged:function rowHasChanged(r1,r2){return r1!==r2;}});
-
+getInitialState:function getInitialState()
+{
+var row=this.props.row;
 return{
-isLoadingTail:false,
-dataSource:ds.cloneWithRows([])};
-
+row:row,
+up:row.voted};
 
 },
 
-renderRow:function renderRow(row){
+_up:function _up()
+{
+var that=this;
+var up=!this.state.up;
+var row=this.state.row;
+var url=_config2.default.api.base+_config2.default.api.up;
+
+var body={
+id:row.id,
+up:up?'yes':'no',
+accessToken:'abcdef'};
+
+
+_request2.default.post(url,body).
+then(function(data){
+if(data&&data.success){
+that.setState({
+up:up});
+
+}else
+{
+AlertIOS.alert('点赞失败，稍后重试');
+}
+}).
+catch(function(error){
+console.log(error);
+AlertIOS.alert('点赞失败，稍后重试');
+});
+
+},
+
+
+render:function render()
+{
+var row=this.state.row;
 return(
 _react2.default.createElement(TouchableHighlight,null,
 _react2.default.createElement(View,{style:styles.item},
@@ -74473,11 +74507,12 @@ style:styles.play})),
 _react2.default.createElement(View,{style:styles.itemFooter},
 _react2.default.createElement(View,{style:styles.handleBox},
 _react2.default.createElement(_Ionicons2.default,{
-name:'ios-heart-outline',
+name:this.state.up?'ios-heart':'ios-heart-outline',
 size:28,
-style:styles.up}),
+style:this.state.up?styles.up:styles.down,
+onPress:this._up}),
 
-_react2.default.createElement(Text,{style:styles.handleText},'\u559C\u6B22')),
+_react2.default.createElement(Text,{style:styles.handleText,onPress:this._up},'\u559C\u6B22')),
 
 
 _react2.default.createElement(View,{style:styles.handleBox},
@@ -74493,6 +74528,27 @@ _react2.default.createElement(Text,{style:styles.handleText},'\u8BC4\u8BBA')))))
 
 
 
+}});
+
+
+
+
+var List=_react2.default.createClass({displayName:'List',
+
+getInitialState:function getInitialState(){
+var ds=new ListView.DataSource({rowHasChanged:function rowHasChanged(r1,r2){return r1!==r2;}});
+
+return{
+isLoadingTail:false,
+dataSource:ds.cloneWithRows([])};
+
+
+},
+
+renderRow:function renderRow(row){
+return(
+this._renderRow(row));
+
 },
 
 componentDidMount:function componentDidMount(){
@@ -74500,6 +74556,10 @@ this._fetchData(1);
 
 },
 
+
+_renderRow:function _renderRow(row){
+return _react2.default.createElement(Item,{row:row});
+},
 
 
 _fetchData:function _fetchData(page){
@@ -74667,8 +74727,12 @@ color:'#333'},
 
 up:{
 fontSize:22,
-color:'#333'},
+color:'#ed7b66'},
 
+
+down:{
+fontSize:22,
+color:'#333'},
 
 commentIcon:{
 fontSize:22,
@@ -100586,7 +100650,8 @@ headers:{
 
 api:{
 base:'http://rap.taobao.org/mockjs/4230/',
-creations:'api/creations'}};
+creations:'api/creations',
+up:'api/up'}};
 }, 574, null, "RN/app/common/config.js");
 __d(/* RN/app/edit/index.js */function(global, require, module, exports) {
 
