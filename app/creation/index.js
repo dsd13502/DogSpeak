@@ -6,6 +6,8 @@
 
 import React  from 'react';
 import ReactNative from 'react-native';
+import Request from '../common/request';
+import config from '../common/config'
 import Icon from 'react-native-vector-icons/Ionicons';
 const {
     StyleSheet,
@@ -14,37 +16,37 @@ const {
     ListView,
     Dimensions,
     TouchableHighlight,
-    Image
+    Image,
+    ActivityIndicator,
 } = ReactNative
 
 const width = Dimensions.get('window').width
 
+const cacheRequest = {
+    pagerNext : 0,
+    items : [],
+    total : 0,
+}
+
 const List = React.createClass({
 
-    getInitialState:function () {
-        var ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2})
+    getInitialState() {
+        let ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+
         return{
-            dataSource:ds.cloneWithRows([
-                {
-                    "_id":"230000197809160223","thumb":"http://dummyimage.com/1200x600/b570ea)","video":"http://www.imooc.com/video/1430"
-                }
-                ,
-                {
-                    "_id":"710000200511092300","thumb":"http://dummyimage.com/1200x600/a12aed)","video":"http://www.imooc.com/video/1430"
-                }
-                ,
-                {
-                    "_id":"230000197405062619","thumb":"http://dummyimage.com/1200x600/12ee5d)","video":"http://www.imooc.com/video/1430"
-                }]),
+            isLoadingTail : false ,
+            dataSource : ds.cloneWithRows([])
         }
+
     },
+
     renderRow:function (row) {
         return(
             <TouchableHighlight>
                 <View style={styles.item}>
 
-                    <Text style={styles.title}>{row._id}</Text>
-                    
+                    <Text style={styles.title}>{row.title}</Text>
+
                     <Image
                         source={{uri:row.thumb}}
                         style={styles.thumb}
@@ -55,7 +57,6 @@ const List = React.createClass({
                             style={styles.play}/>
 
                     </Image>
-
 
                     <View style={styles.itemFooter}>
                         <View style={styles.handleBox}>
@@ -77,29 +78,50 @@ const List = React.createClass({
                         </View>
                     </View>
 
-
-
-
                 </View>
             </TouchableHighlight>
         )
     },
 
-    componentDidMount:function () {
-        console.log('componentDidMount');
-        this._fetchData();
+    componentDidMount() {
+        this._fetchData(1);
 
     },
 
 
-    _fetchData:function () {
-        console.log('fetch');
-        fetch('http://rap.taobao.org/mockjs/4230/api/creations?accessToken=abcdef')
+    //"_"下划线标示私有方面，不对外暴露
+    _fetchData(page) {
+        var that = this;
+        this.setState(
+            {
+                isLoadingTail:true
+                //赋值的时候要使用this.setState({XXX : ooo}) 方法，取的时候要用this.state.XXXX
+            }
+        )
 
-            .then((response) => response.text())
-            .then((responseText) => {
-                console.log(responseText);
-                console.log(1234);
+        Request.get(config.api.base + config.api.creations,{
+            accessToken:'abcdef'
+        })
+            .then((data) => {
+
+                //如果数据加载成功刷新数据。
+                if (data.success){
+
+                    let items =  cacheRequest.items.slice(); //slice 遍历数组
+                    items = items.concat(data.data) ;//concat追加
+                    cacheRequest.items = items;
+                    cacheRequest.total = data.total;
+                    setTimeout(() => //添加两秒延迟
+                    {
+                        that.setState(
+                            {
+                                isLoadingTail :false,
+                                dataSource:that.state.dataSource.cloneWithRows(cacheRequest.items)
+                            }
+                        )
+                    },1000)
+
+                }
             })
             .catch((error) => {
                 console.warn(error);
@@ -109,20 +131,41 @@ const List = React.createClass({
 
     },
 
-
-    getMoviesFromApiAsync() {
-        return fetch('https://facebook.github.io/react-native/movies.json')
-            .then((response) => response.json())
-            .then((responseJson) => {
-            console.log(responseJson);
-                return responseJson.movies;
-            })
-            .catch((error) => {
-                console.error(error);
-            });
+    _hasMore()
+    {
+       return cacheRequest.items.length !== cacheRequest.total;
     },
 
-    render:function () {
+    _fetchMoreData()
+    {
+        if (!this._hasMore || this.state.isLoadingTail){ //如果没有更多数据
+            return
+        }
+
+        let page = cacheRequest.pagerNext;
+        this._fetchData(page);
+
+    },
+
+    _renderFooter()
+    {
+        if (!this._hasMore){
+            return(
+                <View style={styles.loadingMore}>
+                    <Text style={styles.loadingText}>
+                        没有更多了
+                    </Text>
+                </View>
+            )
+        }
+
+        return (
+            <ActivityIndicator style={styles.loadingMore}/>
+        )
+
+    },
+
+    render() {
         return(
             <View sytle={styles.container}>
                 <View style={styles.header}>
@@ -130,10 +173,15 @@ const List = React.createClass({
                 </View>
                 <ListView
                     dataSource={this.state.dataSource}
+                    //添加下载更多图标
+                    renderFooter={this._renderFooter}
+                    //触底获取更多方法
+                    onEndReached={this._fetchMoreData}
+                    onEndReachedThreshold={20}
+
                     renderRow={this.renderRow}
                     enableEmptySections={true}
                 />
-
             </View>
         )
     }
@@ -213,8 +261,16 @@ const styles = StyleSheet.create({
     commentIcon:{
         fontSize:22,
         color:'#333'
-    }
+    },
 
+    loadingMore:{
+        marginVertical:20,
+    },
+
+    loading:{
+        color:'#777',
+        textAlign:'center'
+    }
 
 
 })
