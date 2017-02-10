@@ -1603,8 +1603,8 @@ __d(/* RN/index.ios.js */function(global, require, module, exports) {'use strict
 var _Ionicons=require(12                                  );var _Ionicons2=babelHelpers.interopRequireDefault(_Ionicons);var React=require(14     );var ReactNative=require(45            ); // 45 = react-native // 14 = react // 12 = react-native-vector-icons/Ionicons
 
 var List=require(568                   ); // 568 = ./app/creation/index
-var Edit=require(575               ); // 575 = ./app/edit/index
-var Account=require(576                  );var // 576 = ./app/account/index
+var Edit=require(579               ); // 579 = ./app/edit/index
+var Account=require(580                  );var // 580 = ./app/account/index
 
 
 AppRegistry=
@@ -74436,7 +74436,7 @@ var _react=require(14     );var _react2=babelHelpers.interopRequireDefault(_reac
 var _reactNative=require(45            );var _reactNative2=babelHelpers.interopRequireDefault(_reactNative); // 45 = react-native
 var _request=require(569                );var _request2=babelHelpers.interopRequireDefault(_request); // 569 = ../common/request
 var _config=require(574               );var _config2=babelHelpers.interopRequireDefault(_config); // 574 = ../common/config
-var _detail=require(577       );var _detail2=babelHelpers.interopRequireDefault(_detail); // 577 = ./detail
+var _detail=require(575       );var _detail2=babelHelpers.interopRequireDefault(_detail); // 575 = ./detail
 
 var _Ionicons=require(12                                  );var _Ionicons2=babelHelpers.interopRequireDefault(_Ionicons);var // 12 = react-native-vector-icons/Ionicons
 
@@ -74587,7 +74587,7 @@ this.props.navigator.push({
 name:'detail',
 component:_detail2.default,
 params:{
-row:row}});
+data:row}});
 
 
 },
@@ -100690,22 +100690,148 @@ __d(/* RN/app/creation/detail.js */function(global, require, module, exports) {
 
 'use strict';
 
-var React=require(14     ); // 14 = react
-var ReactNative=require(45            ); // 45 = react-native
-var Icon=require(12                                  );var // 12 = react-native-vector-icons/Ionicons
+
+
+var _Video=require(576                       );var _Video2=babelHelpers.interopRequireDefault(_Video); // 576 = react-native-video/Video
+var _Ionicons=require(12                                  );var _Ionicons2=babelHelpers.interopRequireDefault(_Ionicons);var React=require(14     );var ReactNative=require(45            );var // 45 = react-native // 14 = react // 12 = react-native-vector-icons/Ionicons
+
 
 StyleSheet=
 
 
-ReactNative.StyleSheet,Text=ReactNative.Text,View=ReactNative.View;
+
+
+ReactNative.StyleSheet,Text=ReactNative.Text,View=ReactNative.View,Dimensions=ReactNative.Dimensions,ActivityIndicator=ReactNative.ActivityIndicator;
+
+var width=Dimensions.get('window').width;
 
 var Detail=React.createClass({displayName:'Detail',
+
+
+
+getInitialState:function getInitialState()
+{
+var data=this.props.data;
+return{
+data:data,
+rate:1,
+videoUrl:'http://219.238.7.66/mp4files/4100000003406F25/clips.vorwaerts-gmbh.de/big_buck_bunny.mp4',
+muted:false,
+resizeMode:'contain',
+repeat:false,
+videoLoaded:false,
+videoTotal:0,
+currentTime:0,
+videoPercent:0,
+playing:false};
+
+},
+
 render:function render(){
-var row=this.props.row;
 return(
 React.createElement(View,{style:styles.container},
-React.createElement(Text,{onPress:this._backToList},'\u8BE6\u60C5\u9875\u9762 ',row._id)));
+React.createElement(Text,{onPress:this._backToList},'\u8BE6\u60C5\u9875\u9762 ',this.state.data._id),
+React.createElement(View,{style:styles.videoBox},
+React.createElement(_Video2.default,{
+rep:'videoPlayer',
+source:{uri:this.state.videoUrl},
+style:styles.video,
+volume:3,
+paused:false,
+rate:this.state.rate,
+muted:this.state.muted,
+resizeMode:this.state.resizeMode,
+repeat:this.state.repeat,
 
+onLoadStart:this._onLoadStart,
+onLoad:this._onLoad,
+onProgress:this._onProgress,
+onEnd:this._onEnd,
+onError:this._onError}),
+
+
+
+!this.state.videoLoaded&&
+React.createElement(ActivityIndicator,{color:'#ee735c',style:styles.loading}),
+
+
+
+this.state.videoLoaded&&this.state.playing?
+React.createElement(_Ionicons2.default,{
+onPress:this._rePlay,
+size:48,
+name:'ios-play',
+style:styles.playIcon}):
+null),
+
+
+
+React.createElement(View,{style:styles.progressBox},
+React.createElement(View,{style:[styles.progressBar,{width:width*this.state.videoPercent}]}))));
+
+
+
+
+
+},
+
+_rePlay:function _rePlay()
+{
+this.refs.videoPlayer.seek(0);
+},
+_onLoadStart:function _onLoadStart()
+{
+console.log("load start");
+},
+
+_onLoad:function _onLoad()
+{
+console.log("load ");
+
+},
+
+_onProgress:function _onProgress(data)
+{
+if(!this.state.videoLoaded){
+this.setState({
+videoLoaded:true});
+
+}
+
+var duration=data.playableDuration;
+var currentTime=data.currentTime;
+var percent=Number((currentTime/duration).toFixed(2));
+var newState={
+videoTotal:duration,
+currentTime:Number(currentTime.toFixed(2)),
+videoPercent:percent};
+
+
+if(!this.state.videoLoaded){
+newState.videoLoaded=true;
+}
+
+if(!this.state.playing){
+newState.playing=true;
+}
+
+this.setState(newState);
+
+
+},
+
+_onEnd:function _onEnd(){
+console.log("end");
+this.setState({
+videoPercent:1,
+playing:false});
+
+
+},
+
+_onError:function _onError()
+{
+console.log("error");
 
 },
 
@@ -100723,20 +100849,423 @@ justifyContent:'center',
 alignItems:'center',
 backgroundColor:'#F5FCFF'},
 
-welcome:{
-fontSize:20,
-textAlign:'center',
-margin:10},
+videoBox:{
+width:width,
+height:360,
+backgroundColor:'#000'},
 
-instructions:{
-textAlign:'center',
-color:'#333333',
-marginBottom:5}});
+video:{
+width:width,
+height:360,
+backgroundColor:'#000'},
+
+loading:{
+position:'absolute',
+left:0,
+top:140,
+width:width,
+backgroundColor:'transparent'},
+
+progressBox:{
+width:width,
+height:2,
+backgroundColor:'#ccc'},
+
+progressBar:{
+width:1,
+height:2,
+backgroundColor:'#ff6600'},
+
+
+playIcon:{
+position:'absolute',
+top:140,
+left:width/2-30,
+height:60,
+width:60,
+paddingTop:8,
+paddingLeft:22,
+backgroundColor:'transparent',
+borderColor:'#fff',
+borderWidth:1,
+borderRadius:30,
+color:'#ed7b66'}});
+
 
 
 
 module.exports=Detail;
-}, 577, null, "RN/app/creation/detail.js");
+}, 575, null, "RN/app/creation/detail.js");
+__d(/* react-native-video/Video.js */function(global, require, module, exports) {Object.defineProperty(exports,"__esModule",{value:true});var _react=require(14     );var _react2=babelHelpers.interopRequireDefault(_react); // 14 = react
+var _reactNative=require(45            ); // 45 = react-native
+var _resolveAssetSource=require(174                                              );var _resolveAssetSource2=babelHelpers.interopRequireDefault(_resolveAssetSource); // 174 = react-native/Libraries/Image/resolveAssetSource
+var _VideoResizeMode=require(577                   );var _VideoResizeMode2=babelHelpers.interopRequireDefault(_VideoResizeMode); // 577 = ./VideoResizeMode.js
+
+var styles=_reactNative.StyleSheet.create({
+base:{
+overflow:'hidden'}});var
+
+
+
+Video=function(_Component){babelHelpers.inherits(Video,_Component);
+
+function Video(props){babelHelpers.classCallCheck(this,Video);var _this=babelHelpers.possibleConstructorReturn(this,(Video.__proto__||Object.getPrototypeOf(Video)).call(this,
+props));_this.
+
+
+
+
+
+
+
+
+
+
+seek=function(time){
+_this.setNativeProps({seek:time});
+};_this.
+
+presentFullscreenPlayer=function(){
+_this.setNativeProps({fullscreen:true});
+};_this.
+
+dismissFullscreenPlayer=function(){
+_this.setNativeProps({fullscreen:false});
+};_this.
+
+_assignRoot=function(component){
+_this._root=component;
+};_this.
+
+_onLoadStart=function(event){
+if(_this.props.onLoadStart){
+_this.props.onLoadStart(event.nativeEvent);
+}
+};_this.
+
+_onLoad=function(event){
+if(_this.props.onLoad){
+_this.props.onLoad(event.nativeEvent);
+}
+};_this.
+
+_onError=function(event){
+if(_this.props.onError){
+_this.props.onError(event.nativeEvent);
+}
+};_this.
+
+_onProgress=function(event){
+if(_this.props.onProgress){
+_this.props.onProgress(event.nativeEvent);
+}
+};_this.
+
+_onSeek=function(event){
+if(_this.state.showPoster){
+_this.setState({showPoster:false});
+}
+
+if(_this.props.onSeek){
+_this.props.onSeek(event.nativeEvent);
+}
+};_this.
+
+_onEnd=function(event){
+if(_this.props.onEnd){
+_this.props.onEnd(event.nativeEvent);
+}
+};_this.
+
+_onFullscreenPlayerWillPresent=function(event){
+if(_this.props.onFullscreenPlayerWillPresent){
+_this.props.onFullscreenPlayerWillPresent(event.nativeEvent);
+}
+};_this.
+
+_onFullscreenPlayerDidPresent=function(event){
+if(_this.props.onFullscreenPlayerDidPresent){
+_this.props.onFullscreenPlayerDidPresent(event.nativeEvent);
+}
+};_this.
+
+_onFullscreenPlayerWillDismiss=function(event){
+if(_this.props.onFullscreenPlayerWillDismiss){
+_this.props.onFullscreenPlayerWillDismiss(event.nativeEvent);
+}
+};_this.
+
+_onFullscreenPlayerDidDismiss=function(event){
+if(_this.props.onFullscreenPlayerDidDismiss){
+_this.props.onFullscreenPlayerDidDismiss(event.nativeEvent);
+}
+};_this.
+
+_onReadyForDisplay=function(event){
+if(_this.props.onReadyForDisplay){
+_this.props.onReadyForDisplay(event.nativeEvent);
+}
+};_this.
+
+_onPlaybackStalled=function(event){
+if(_this.props.onPlaybackStalled){
+_this.props.onPlaybackStalled(event.nativeEvent);
+}
+};_this.
+
+_onPlaybackResume=function(event){
+if(_this.props.onPlaybackResume){
+_this.props.onPlaybackResume(event.nativeEvent);
+}
+};_this.
+
+_onPlaybackRateChange=function(event){
+if(_this.state.showPoster&&event.nativeEvent.playbackRate!==0){
+_this.setState({showPoster:false});
+}
+
+if(_this.props.onPlaybackRateChange){
+_this.props.onPlaybackRateChange(event.nativeEvent);
+}
+};_this.
+
+_onAudioBecomingNoisy=function(){
+if(_this.props.onAudioBecomingNoisy){
+_this.props.onAudioBecomingNoisy();
+}
+};_this.
+
+_onAudioFocusChanged=function(event){
+if(_this.props.onAudioFocusChanged){
+_this.props.onAudioFocusChanged(event.nativeEvent);
+}
+};_this.
+
+_onBuffer=function(event){
+if(_this.props.onBuffer){
+_this.props.onBuffer(event.nativeEvent);
+}
+};_this.state={showPoster:true};return _this;}babelHelpers.createClass(Video,[{key:'setNativeProps',value:function setNativeProps(nativeProps){this._root.setNativeProps(nativeProps);}},{key:'render',value:function render()
+
+{
+var resizeMode=this.props.resizeMode;
+var source=(0,_resolveAssetSource2.default)(this.props.source)||{};
+
+var uri=source.uri||'';
+if(uri&&uri.match(/^\//)){
+uri='file://'+uri;
+}
+
+var isNetwork=!!(uri&&uri.match(/^https?:/));
+var isAsset=!!(uri&&uri.match(/^(assets-library|file|content|ms-appx|ms-appdata):/));
+
+var nativeResizeMode=void 0;
+if(resizeMode===_VideoResizeMode2.default.stretch){
+nativeResizeMode=_reactNative.NativeModules.UIManager.RCTVideo.Constants.ScaleToFill;
+}else if(resizeMode===_VideoResizeMode2.default.contain){
+nativeResizeMode=_reactNative.NativeModules.UIManager.RCTVideo.Constants.ScaleAspectFit;
+}else if(resizeMode===_VideoResizeMode2.default.cover){
+nativeResizeMode=_reactNative.NativeModules.UIManager.RCTVideo.Constants.ScaleAspectFill;
+}else{
+nativeResizeMode=_reactNative.NativeModules.UIManager.RCTVideo.Constants.ScaleNone;
+}
+
+var nativeProps=babelHelpers.extends({},this.props);
+babelHelpers.extends(nativeProps,{
+style:[styles.base,nativeProps.style],
+resizeMode:nativeResizeMode,
+src:{
+uri:uri,
+isNetwork:isNetwork,
+isAsset:isAsset,
+type:source.type||'',
+mainVer:source.mainVer||0,
+patchVer:source.patchVer||0},
+
+onVideoLoadStart:this._onLoadStart,
+onVideoLoad:this._onLoad,
+onVideoError:this._onError,
+onVideoProgress:this._onProgress,
+onVideoSeek:this._onSeek,
+onVideoEnd:this._onEnd,
+onVideoBuffer:this._onBuffer,
+onVideoFullscreenPlayerWillPresent:this._onFullscreenPlayerWillPresent,
+onVideoFullscreenPlayerDidPresent:this._onFullscreenPlayerDidPresent,
+onVideoFullscreenPlayerWillDismiss:this._onFullscreenPlayerWillDismiss,
+onVideoFullscreenPlayerDidDismiss:this._onFullscreenPlayerDidDismiss,
+onReadyForDisplay:this._onReadyForDisplay,
+onPlaybackStalled:this._onPlaybackStalled,
+onPlaybackResume:this._onPlaybackResume,
+onPlaybackRateChange:this._onPlaybackRateChange,
+onAudioFocusChanged:this._onAudioFocusChanged,
+onAudioBecomingNoisy:this._onAudioBecomingNoisy});
+
+
+if(this.props.poster&&this.state.showPoster){
+var posterStyle={
+position:'absolute',
+left:0,
+top:0,
+right:0,
+bottom:0,
+resizeMode:'contain'};
+
+
+return(
+_react2.default.createElement(_reactNative.View,{style:nativeProps.style},
+_react2.default.createElement(RCTVideo,babelHelpers.extends({
+ref:this._assignRoot},
+nativeProps)),
+
+_react2.default.createElement(_reactNative.Image,{
+style:posterStyle,
+source:{uri:this.props.poster}})));
+
+
+
+}
+
+return(
+_react2.default.createElement(RCTVideo,babelHelpers.extends({
+ref:this._assignRoot},
+nativeProps)));
+
+
+}}]);return Video;}(_react.Component);exports.default=Video;
+
+
+Video.propTypes=babelHelpers.extends({
+
+src:_react.PropTypes.object,
+seek:_react.PropTypes.number,
+fullscreen:_react.PropTypes.bool,
+onVideoLoadStart:_react.PropTypes.func,
+onVideoLoad:_react.PropTypes.func,
+onVideoBuffer:_react.PropTypes.func,
+onVideoError:_react.PropTypes.func,
+onVideoProgress:_react.PropTypes.func,
+onVideoSeek:_react.PropTypes.func,
+onVideoEnd:_react.PropTypes.func,
+onVideoFullscreenPlayerWillPresent:_react.PropTypes.func,
+onVideoFullscreenPlayerDidPresent:_react.PropTypes.func,
+onVideoFullscreenPlayerWillDismiss:_react.PropTypes.func,
+onVideoFullscreenPlayerDidDismiss:_react.PropTypes.func,
+
+
+source:_react.PropTypes.oneOfType([
+_react.PropTypes.shape({
+uri:_react.PropTypes.string}),
+
+
+_react.PropTypes.number]),
+
+resizeMode:_react.PropTypes.string,
+poster:_react.PropTypes.string,
+repeat:_react.PropTypes.bool,
+paused:_react.PropTypes.bool,
+muted:_react.PropTypes.bool,
+volume:_react.PropTypes.number,
+rate:_react.PropTypes.number,
+playInBackground:_react.PropTypes.bool,
+playWhenInactive:_react.PropTypes.bool,
+disableFocus:_react.PropTypes.bool,
+controls:_react.PropTypes.bool,
+currentTime:_react.PropTypes.number,
+progressUpdateInterval:_react.PropTypes.number,
+onLoadStart:_react.PropTypes.func,
+onLoad:_react.PropTypes.func,
+onBuffer:_react.PropTypes.func,
+onError:_react.PropTypes.func,
+onProgress:_react.PropTypes.func,
+onSeek:_react.PropTypes.func,
+onEnd:_react.PropTypes.func,
+onFullscreenPlayerWillPresent:_react.PropTypes.func,
+onFullscreenPlayerDidPresent:_react.PropTypes.func,
+onFullscreenPlayerWillDismiss:_react.PropTypes.func,
+onFullscreenPlayerDidDismiss:_react.PropTypes.func,
+onReadyForDisplay:_react.PropTypes.func,
+onPlaybackStalled:_react.PropTypes.func,
+onPlaybackResume:_react.PropTypes.func,
+onPlaybackRateChange:_react.PropTypes.func,
+onAudioFocusChanged:_react.PropTypes.func,
+onAudioBecomingNoisy:_react.PropTypes.func,
+
+
+scaleX:_react.PropTypes.number,
+scaleY:_react.PropTypes.number,
+translateX:_react.PropTypes.number,
+translateY:_react.PropTypes.number,
+rotation:_react.PropTypes.number},
+_reactNative.View.propTypes);
+
+
+var RCTVideo=(0,_reactNative.requireNativeComponent)('RCTVideo',Video,{
+nativeOnly:{
+src:true,
+seek:true,
+fullscreen:true}});
+}, 576, null, "react-native-video/Video.js");
+__d(/* react-native-video/VideoResizeMode.js */function(global, require, module, exports) {Object.defineProperty(exports,"__esModule",{value:true});var _keymirror=require(578        );var _keymirror2=babelHelpers.interopRequireDefault(_keymirror);exports.default= // 578 = keymirror
+
+(0,_keymirror2.default)({
+contain:null,
+cover:null,
+stretch:null});
+}, 577, null, "react-native-video/VideoResizeMode.js");
+__d(/* keymirror/index.js */function(global, require, module, exports) {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+"use strict";
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+var keyMirror=function keyMirror(obj){
+var ret={};
+var key;
+if(!(obj instanceof Object&&!Array.isArray(obj))){
+throw new Error('keyMirror(...): Argument must be an object.');
+}
+for(key in obj){
+if(!obj.hasOwnProperty(key)){
+continue;
+}
+ret[key]=key;
+}
+return ret;
+};
+
+module.exports=keyMirror;
+}, 578, null, "keymirror/index.js");
 __d(/* RN/app/edit/index.js */function(global, require, module, exports) {
 
 
@@ -100783,7 +101312,7 @@ marginBottom:5}});
 
 
 module.exports=Edit;
-}, 575, null, "RN/app/edit/index.js");
+}, 579, null, "RN/app/edit/index.js");
 __d(/* RN/app/account/index.js */function(global, require, module, exports) {
 
 
@@ -100830,7 +101359,7 @@ marginBottom:5}});
 
 
 module.exports=Account;
-}, 576, null, "RN/app/account/index.js");
+}, 580, null, "RN/app/account/index.js");
 ;require(219);
 ;require(0);
 //# sourceMappingURL=index.ios.map

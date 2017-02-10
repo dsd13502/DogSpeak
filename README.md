@@ -19,10 +19,17 @@ npm i query-string --save
 npm i lodash --save
 nmp i mockjs --save
 ```
-图片库
+
+### 图片库
 `npm install react-native-vector-icons --save`
 
 `sudo npm i rnpm -g`
 
 使用rnpm建立链接
 `rnpm link`
+
+### 视频库
+``
+npm i react-native-video --save
+rnpm link
+``
