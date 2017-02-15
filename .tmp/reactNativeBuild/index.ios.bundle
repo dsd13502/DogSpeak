@@ -100733,7 +100733,7 @@ React.createElement(View,{style:styles.container},
 React.createElement(Text,{onPress:this._backToList},'\u8BE6\u60C5\u9875\u9762 ',this.state.data._id),
 React.createElement(View,{style:styles.videoBox},
 React.createElement(_Video2.default,{
-rep:'videoPlayer',
+ref:'videoPlayer',
 source:{uri:this.state.videoUrl},
 style:styles.video,
 volume:3,

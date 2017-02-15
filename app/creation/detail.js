@@ -47,7 +47,7 @@ const Detail = React.createClass({
                 <Text onPress={this._backToList}>详情页面 {this.state.data._id}</Text>
                 <View style={styles.videoBox}>
                     <Video
-                        rep='videoPlayer' //相当于对组建的引用
+                        ref='videoPlayer' //相当于对组建的引用
                         source={{uri:this.state.videoUrl}}
                         style={styles.video}
                         volume={3}
@@ -70,7 +70,7 @@ const Detail = React.createClass({
                     }
 
                     {
-                        this.state.videoLoaded && this.state.playing ?
+                        !this.state.videoLoaded && !this.state.playing ?
                             <Icon
                                 onPress={this._rePlay}//如果调用 _rePlay() 则会自动执行，不知道原因
                                 size={48}
